@@ -11,7 +11,7 @@ setup(
     packages=['worker'],
     install_requires=reqs,
     entry_points={
-        'console_scripts': ['apid=api:main', 'workerd=worker:main']
+        'console_scripts': ['frontend=frontend:main', 'backend=backend:main']
     },
     zip_safe=False,
 )

@@ -2,13 +2,8 @@ from __future__ import absolute_import
 
 import uuid
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import cherrypy
-from worker import utils
+from . import utils
 
 
 class MyAPI(object):
@@ -56,7 +51,9 @@ class MyAPI(object):
 def main():
     config = {
         '/': {'tools.gzip.on': True},
+        'global': {'server.socket_host': "0.0.0.0"}
     }
+    utils.parse_args()
     cherrypy.quickstart(MyAPI(), config=config)
 
 
