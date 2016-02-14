@@ -33,6 +33,10 @@ need to be improved to be 100% production ready:
   * Deploy with nginx reverse proxy
   * Business decision for cancelled tasks, as redis with current
    implementation would get filled with cancelled tasks.
+
+Also, although not needed for production ready, I would add:
+
+  * Scripts to inject data in rabbitmq and redis to simulate the other part
    
 ### WebSockets
 
@@ -48,3 +52,37 @@ to continue where it was left, making processing not need to start again.
 Having this last improvement implemented has the danger of overloading and
 crashing all the workers if software bug exists. Therefore rabbitmq backend
 should be configured for max retries.
+
+How to use
+----------
+
+This is a all in one bundle. The code is distributed as follows:
+
+```
+docker/ # Docker related stuff, for "production"
+  docker-compose.yml # Compose YAML for "production" deployment
+  Dockerfile # Dockerfile to build our python container
+  prepare-env.sh # Script to take the sources and put it here
+tests/ # Python tests
+test-env/ # Scripts and stuff to help during development
+  docker-compose.yml # Just the services our app uses
+  host-aliases # Aliases to use together with the docker-compose.yml
+worker/ # Python code
+
+```
+
+One would execute it by running the following commands:
+
+```
+# Prepare the docker build environment
+./docker/prepare-env.sh
+
+# Build with docker compose
+cd docker
+docker-compose build
+
+# Launch the app
+docker-compose up
+```
+
+After that, you can browse to [http://localhost:8080/] or whatever your IP is.
