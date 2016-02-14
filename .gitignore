@@ -3,3 +3,6 @@ dist/
 *.tar.gz
 __pycache__/
 *.pyc
+/.tox/
+/.cache/
+/htmlcov/

@@ -17,9 +17,11 @@ def worker_cb(job_id):
     for t in range(100):
         status = r.update_task(job_id, random.randint(0, 10))
         logger.debug('Processing task id %s, total work %d', job_id, status)
-        if status > 100:
-            break
         if status >= 1000:
+            logger.debug('Task %s cancelled', job_id)
+            break
+        if status > 100:
+            logger.debug('Task %s completed', job_id)
             break
         time.sleep(1)
 

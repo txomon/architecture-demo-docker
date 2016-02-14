@@ -10,13 +10,14 @@ configuration, instead of docker-compose.
 Work time
 ---------
 
-Until now I have worked 7 hours:
+Until now I have worked 9 hours:
 
  * Development of the solution 4 hours:
     * 1 hour lost with python 2 / 3 compatibility
  * Docker, environment and testing environment setup, learning docker-compose
   and testing 1.5 hours
  * Documentation 45 mins
+ * Python envionment for testing, coverage, travis, etc. + tests 2 hours.
 
 
 TODOs and Improvements
@@ -26,8 +27,9 @@ As I don't know how much effort is expected from this work, I have worked to
 have a MVP, although I wouldn't deploy it in production. The following things
 need to be improved to be 100% production ready:
 
-  * Web interface not to reload when processing has been completed
+  * Separate progress update from html (now it just reloads the page)
   * Abstract the progress instead of passing strings
+  * Web interface not to reload when processing has been completed
   * Deploy with nginx reverse proxy
   * Business decision for cancelled tasks, as redis with current
    implementation would get filled with cancelled tasks.

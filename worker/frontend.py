@@ -4,6 +4,7 @@ import logging
 import uuid
 
 import cherrypy
+
 from worker.utils import TaskScheduler, configure_logging
 
 logger = logging.getLogger()
@@ -17,7 +18,6 @@ class MyAPI(object):
         else:
             return self._start()
 
-    @cherrypy.expose
     def _start(self):
         id = str(uuid.uuid4())
         sched = TaskScheduler()
@@ -32,7 +32,6 @@ class MyAPI(object):
         </body>
     </html>''' % (id, id)
 
-    @cherrypy.expose
     def _check(self, id):
         r = TaskScheduler()
         status = r.check_task(id)

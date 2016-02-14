@@ -1,7 +1,9 @@
 from __future__ import absolute_import
 
 import logging
+
 import pika
+
 import redis
 
 try:
