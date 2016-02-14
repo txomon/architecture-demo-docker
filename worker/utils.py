@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import argparse
+import logging
 import pika
 import redis
 
@@ -9,16 +9,12 @@ try:
 except ImportError:
     import json
 
+logger = logging.getLogger()
+
 
 class Redis(redis.StrictRedis):
-    host = 'localhost'
-
     def __init__(self):
-        super(Redis, self).__init__(redis.StrictRedis(self.host))
-
-    @classmethod
-    def setup_hostname(cls, hostname):
-        cls.host = hostname
+        super(Redis, self).__init__('redis')
 
     def set_task(self, id):
         self.set(id, -1)
@@ -33,28 +29,25 @@ class Redis(redis.StrictRedis):
     def check_task(self, id):
         progress = self.get(id)
         if progress is None:
-            status = 'Task canceled'
-        elif progress < 0:
-            status = 'Enqueued'
-        elif progress <= 100:
-            status = 'Processing %d' % progress
-        elif progress < 1000:
-            status = 'Processing complete'
-        else:
-            status = 'Task canceled'
-        return status
+            return 'Task cancelled'
+        try:
+            progress = int(progress)
+        except:
+            logger.exception('Error on progress to integer conversion')
+            return 'Task cancelled'
+        if progress < 0:
+            return 'Enqueued'
+        if progress <= 100:
+            return 'Processing %d' % progress
+        if progress < 1000:
+            return 'Processing complete'
+        return 'Task cancelled'
 
 
 class RabbitMQ(pika.BlockingConnection):
-    host = 'localhost'
-
     def __init__(self):
         self.consumer_callback = lambda x: ''
-        super(RabbitMQ, self).__init__(pika.ConnectionParameters(self.host))
-
-    @classmethod
-    def setup_hostname(cls, hostname):
-        cls.host = hostname
+        super(RabbitMQ, self).__init__(pika.ConnectionParameters('rabbitmq'))
 
     def post_task(self, id):
         ch = self.channel()
@@ -69,6 +62,7 @@ class RabbitMQ(pika.BlockingConnection):
         )
 
     def consume_cb(self, channel, method, properties, body):
+        logger.debug("Received body '%s'", body)
         task = json.loads(body)
         self.consumer_callback(task['id'])
         channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -81,13 +75,3 @@ class RabbitMQ(pika.BlockingConnection):
         ch.basic_qos(prefetch_count=1)
         ch.basic_consume(self.consume_cb, queue='work', no_ack=False)
         ch.start_consuming()
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Frontend of worker')
-    parser.add_argument('redis', help='Redis hostname', default='localhost')
-    parser.add_argument('rabbitmq', help='Rabbitmq hostname',
-                        default='localhost')
-    args = parser.parse_args()
-    RabbitMQ.setup_hostname(args.rabbitmq)
-    Redis.setup_hostname(args.redis)

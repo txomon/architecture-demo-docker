@@ -1,21 +1,31 @@
-web:
-  build: .
-  ports:
-    - "8080:8080"
-  links:
-    - redis
-    - rabbitmq
-worker:
-  build: .
-  links:
-    - redis
-    - rabbitmq
-redis:
-  image: redis
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    links:
+      - redis
+      - rabbitmq
+    entrypoint: frontend
 
-rabbitmq:
-  image: management
-  ports:
-    - "15672:15672"
- 
+  worker:
+    build: .
+    links:
+      - redis
+      - rabbitmq
+    entrypoint: backend
+
+  redis:
+    image: redis:alpine
+    expose:
+      - "6379"
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "15672:15672"
+    expose:
+      - "5672"
+
 

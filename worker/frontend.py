@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+import logging
 import uuid
 
 import cherrypy
-from . import utils
+from worker import utils
+
+logger = logging.getLogger()
 
 
 class MyAPI(object):
@@ -25,8 +28,11 @@ class MyAPI(object):
         <body>
             <h1>Task created</h1>
             <p><a href="/?id=%s">Check task status.</a></p>
+            <script> setTimeout(function() {
+             location.href = "/?id=%s";
+             }, 4000) </script>
         </body>
-    </html>''' % id
+    </html>''' % (id, id)
 
     @cherrypy.expose
     def _check(self, id):
@@ -37,6 +43,9 @@ class MyAPI(object):
         <body>
             <h1>Task %s</h1>
             <p>%s</p>
+            <script> setTimeout(function() {
+            location.reload();
+            }, 1000); </script>
         </body>
         </html>''' % (id, status)
 
@@ -49,11 +58,11 @@ class MyAPI(object):
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
     config = {
         '/': {'tools.gzip.on': True},
         'global': {'server.socket_host': "0.0.0.0"}
     }
-    utils.parse_args()
     cherrypy.quickstart(MyAPI(), config=config)
 
 

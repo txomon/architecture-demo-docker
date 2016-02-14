@@ -9,7 +9,3 @@ if [ $? != 0 ]; then
 	echo 'Copying distribution files failed'
 	exit 1
 fi
-
-
-cd $DIR
-docker build --tag 'worker' .
