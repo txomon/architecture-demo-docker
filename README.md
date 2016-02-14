@@ -75,7 +75,7 @@ One would execute it by running the following commands:
 
 ```
 # Prepare the docker build environment
-./docker/prepare-env.sh
+./docker/prepare_env.sh
 
 # Build with docker compose
 cd docker
