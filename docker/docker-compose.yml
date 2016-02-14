@@ -12,8 +12,8 @@ services:
   worker:
     build: .
     links:
-      - redis
       - rabbitmq
+      - redis
     entrypoint: backend
 
   redis:

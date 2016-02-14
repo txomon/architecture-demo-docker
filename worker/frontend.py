@@ -4,7 +4,7 @@ import logging
 import uuid
 
 import cherrypy
-from worker import utils
+from worker.utils import TaskScheduler, configure_logging
 
 logger = logging.getLogger()
 
@@ -20,10 +20,8 @@ class MyAPI(object):
     @cherrypy.expose
     def _start(self):
         id = str(uuid.uuid4())
-        r = utils.Redis()
-        rabbitmq = utils.RabbitMQ()
-        r.set_task(id)
-        rabbitmq.post_task(id)
+        sched = TaskScheduler()
+        sched.post_task(id)
         return '''<html>
         <body>
             <h1>Task created</h1>
@@ -36,29 +34,30 @@ class MyAPI(object):
 
     @cherrypy.expose
     def _check(self, id):
-        r = utils.Redis()
+        r = TaskScheduler()
         status = r.check_task(id)
 
         return '''<html>
         <body>
             <h1>Task %s</h1>
             <p>%s</p>
+            <p><a href="/cancel?id=%s">Cancel task</a></p>
             <script> setTimeout(function() {
             location.reload();
-            }, 1000); </script>
+            }, 5000); </script>
         </body>
-        </html>''' % (id, status)
+        </html>''' % (id, status, id)
 
     @cherrypy.expose
     def cancel(self, id):
-        r = utils.Redis()
+        r = TaskScheduler()
         r.cancel_task(id)
-        return '''
-        '''
+        return '''<html><body><script>location.href =  "/?id=%s";</script>
+        ''' % (id)
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    configure_logging()
     config = {
         '/': {'tools.gzip.on': True},
         'global': {'server.socket_host': "0.0.0.0"}
