@@ -38,7 +38,8 @@ class TaskScheduler(object):
     rabbitmq = property(get_rabbitmq)
 
     def cancel_task(self, id):
-        self.redis.setnx(id, 1000)
+        if self.redis.get(id) != None:
+            self.redis.set(id, 1000)
 
     def update_task(self, id, progress_delta=1):
         assert (progress_delta <= 100)
